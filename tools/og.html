@@ -1,0 +1,88 @@
+<!doctype html>
+<!-- Link preview generator. `npm run dev`, open http://localhost:3000/dev/og, click Save → public/img/og.png -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OG image</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Figtree:wght@500;600;700&family=JetBrains+Mono:wght@700&display=swap">
+<style>body{margin:0;background:#222;color:#fff;font:14px system-ui;padding:20px}canvas{width:1200px;max-width:100%;display:block;margin-bottom:12px}</style>
+</head>
+<body>
+<canvas id="c" width="1200" height="630"></canvas>
+<button id="save">Save to public/img/og.png</button> <span id="msg"></span>
+<script>
+const W = 1200, H = 630;
+const C = { bg: "#0a0c0b", card: "#111413", surface: "#171b19", line: "#262c29", fg: "#f1f4f2", muted: "#8c958f", accent: "#6ee7a0", soft: "#132a1d", gold: "#f2c14e" };
+const DISPLAY = '"Bricolage Grotesque"', BODY = '"Figtree"', MONO = '"JetBrains Mono"';
+
+function rr(x, cx, y, w, h, r) { x.beginPath(); x.roundRect(cx, y, w, h, r); }
+
+async function draw() {
+  await Promise.all([
+    document.fonts.load(`800 96px ${DISPLAY}`), document.fonts.load(`600 30px ${BODY}`),
+    document.fonts.load(`700 30px ${BODY}`), document.fonts.load(`700 24px ${MONO}`),
+  ]);
+  const logo = await new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = "/img/logo.webp"; });
+  const x = document.getElementById("c").getContext("2d");
+
+  // background + glows
+  x.fillStyle = C.bg; x.fillRect(0, 0, W, H);
+  let g = x.createRadialGradient(1020, 120, 0, 1020, 120, 620);
+  g.addColorStop(0, "rgba(110,231,160,.22)"); g.addColorStop(1, "rgba(110,231,160,0)");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  g = x.createRadialGradient(140, 700, 0, 140, 700, 520);
+  g.addColorStop(0, "rgba(255,236,200,.08)"); g.addColorStop(1, "rgba(255,236,200,0)");
+  x.fillStyle = g; x.fillRect(0, 0, W, H);
+  // faint grid
+  x.strokeStyle = "rgba(255,255,255,.035)"; x.lineWidth = 1;
+  for (let i = 60; i < W; i += 60) { x.beginPath(); x.moveTo(i + .5, 0); x.lineTo(i + .5, H); x.stroke(); }
+  for (let i = 60; i < H; i += 60) { x.beginPath(); x.moveTo(0, i + .5); x.lineTo(W, i + .5); x.stroke(); }
+
+  // logo + wordmark
+  x.save(); rr(x, 72, 64, 64, 64, 16); x.clip(); x.drawImage(logo, 72, 64, 64, 64); x.restore();
+  x.strokeStyle = C.line; x.lineWidth = 2; rr(x, 72, 64, 64, 64, 16); x.stroke();
+  x.fillStyle = C.fg; x.font = `800 34px ${DISPLAY}`; x.textBaseline = "middle"; x.fillText("ENLIST", 152, 98);
+
+  // eyebrow
+  x.font = `700 20px ${BODY}`;
+  const eb = "PUMPFUN SQUADS COMPETITION · $2.5M PRIZE POOL";
+  const ebw = x.measureText(eb).width;
+  x.fillStyle = C.soft; rr(x, 72, 184, ebw + 62, 44, 22); x.fill();
+  x.fillStyle = C.accent; x.beginPath(); x.arc(98, 206, 6, 0, 7); x.fill();
+  x.fillStyle = "rgba(110,231,160,.25)"; x.beginPath(); x.arc(98, 206, 11, 0, 7); x.fill();
+  x.fillStyle = C.accent; x.beginPath(); x.arc(98, 206, 6, 0, 7); x.fill();
+  x.fillStyle = "#b9f3d0"; x.fillText(eb, 118, 207);
+
+  // headline
+  x.textBaseline = "alphabetic"; x.font = `800 104px ${DISPLAY}`;
+  x.fillStyle = C.fg; x.fillText("Enlist your squad.", 66, 342);
+  x.fillStyle = C.accent; x.fillText("Win together.", 66, 444);
+
+  // subline
+  x.font = `500 30px ${BODY}`; x.fillStyle = C.muted;
+  x.fillText("Find a squad filtered by real, wallet-verified PNL.", 72, 512);
+
+  // chips
+  x.font = `600 22px ${BODY}`;
+  let cx = 72;
+  for (const t of ["Entry PNL bar", "Verified wallets", "Squad leaderboard"]) {
+    const w = x.measureText(t).width + 40;
+    x.strokeStyle = C.line; x.lineWidth = 2; rr(x, cx, 548, w, 44, 22); x.stroke();
+    x.fillStyle = C.fg; x.textBaseline = "middle"; x.fillText(t, cx + 20, 571);
+    cx += w + 12;
+  }
+
+  // domain, bottom right
+  x.font = `700 24px ${MONO}`; x.fillStyle = C.accent; x.textAlign = "right";
+  x.fillText("enlistyoursquad.com", W - 72, 571);
+  x.textAlign = "left";
+}
+
+draw();
+document.getElementById("save").onclick = () => document.getElementById("c").toBlob(async blob => {
+  const r = await fetch("/dev/save-og", { method: "POST", body: blob });
+  document.getElementById("msg").textContent = r.ok ? "Saved" : "Failed: " + (await r.text());
+}, "image/png");
+</script>
+</body>
+</html>
