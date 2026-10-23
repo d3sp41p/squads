@@ -261,7 +261,7 @@ function openCreate(){
   </div>
   <div class="field full"><label for="c-desc">About the squad</label><input class="input" id="c-desc" maxlength="90" placeholder="Trading style, hours, language"></div>
   <div class="full" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-   <span class="note">Your 30D PNL: <b class="mono pos">${money(state.me.d30)}</b> · you'll be member 1/20</span>
+   <span class="note">Your 30D PNL: <b class="mono ${state.me.d30<0?"neg":"pos"}">${money(state.me.d30)}</b> · you'll be member 1/20</span>
    <button class="btn btn-primary" type="submit">Publish squad</button></div>
  </form>`,m=>{
   let img=null,ban=null;
