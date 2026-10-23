@@ -209,6 +209,8 @@ a.btn-primary{color:var(--accent-ink)}
 .wallet-list .btn{text-align:left;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
 .loading{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)}
 footer a{color:var(--muted)}
+.xlink{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--surface);color:var(--fg);flex:none;transition:background .12s}
+.xlink:hover{background:var(--line)}
 .btn.busy{opacity:.6;pointer-events:none}
 
 @media (max-width:860px){

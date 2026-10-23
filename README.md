@@ -21,7 +21,7 @@ Every push to `main` redeploys automatically.
 ## Before launch
 
 - [ ] Replace `public/img/hero.webp` (the mascots wear "PumpFun" patches) with art without Pumpfun marks. Same size (≈880×740, transparent WebP).
-- [ ] Replace `hello@enlist.example` in `public/privacy.html` and `public/terms.html` with a real contact.
+- [ ] Optional: add a contact email next to the X link in `public/privacy.html` and `public/terms.html`.
 - [ ] Optional: add `<meta property="og:image" content="https://YOUR-DOMAIN/img/og.png">` (1200×630) to `public/index.html` for link previews.
 - [ ] Test sign-in with Phantom on desktop and inside the Phantom app on a phone.
 
