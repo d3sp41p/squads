@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Link preview generator. `npm run dev`, open http://localhost:3000/dev/og, click Save → public/img/og.png -->
+<!-- Link preview generator. `npm run dev`, open http://localhost:3000/dev/og, click Save → public/img/og.jpg -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -9,7 +9,7 @@
 </head>
 <body>
 <canvas id="c" width="1200" height="630"></canvas>
-<button id="save">Save to public/img/og.png</button> <span id="msg"></span>
+<button id="save">Save to public/img/og.jpg</button> <span id="msg"></span>
 <script>
 const W = 1200, H = 630;
 const C = { bg: "#0a0c0b", card: "#111413", surface: "#171b19", line: "#262c29", fg: "#f1f4f2", muted: "#8c958f", accent: "#6ee7a0", soft: "#132a1d", gold: "#f2c14e" };
@@ -82,7 +82,7 @@ draw();
 document.getElementById("save").onclick = () => document.getElementById("c").toBlob(async blob => {
   const r = await fetch("/dev/save-og", { method: "POST", body: blob });
   document.getElementById("msg").textContent = r.ok ? "Saved" : "Failed: " + (await r.text());
-}, "image/png");
+}, "image/jpeg", 0.9);
 </script>
 </body>
 </html>

@@ -7,7 +7,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 process.chdir(path.dirname(fileURLToPath(import.meta.url)));
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = path.resolve("public");
-const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".webp": "image/webp", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain" };
+const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".webp": "image/webp", ".png": "image/png", ".jpg": "image/jpeg", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".txt": "text/plain" };
 
 // Test-only wallet for browsers without Phantom. Served by this dev server only, never deployed.
 const DEV_FILES = {
@@ -43,12 +43,12 @@ http.createServer(async (req, res) => {
     const url = new URL(req.url, "http://x");
     if (url.pathname.startsWith("/api/")) return await api(req, res, url.pathname.slice(5));
     if (DEV_FILES[url.pathname]) return send(res, 200, fs.readFileSync(DEV_FILES[url.pathname]), "text/javascript");
-    // Link preview generator (tools/og.html) and where it saves the PNG
+    // Link preview generator (tools/og.html) and where it saves the image
     if (url.pathname === "/dev/og") return send(res, 200, fs.readFileSync("tools/og.html"), TYPES[".html"]);
     if (url.pathname === "/dev/save-og" && req.method === "POST") {
       const chunks = [];
       for await (const c of req) chunks.push(c);
-      fs.writeFileSync("public/img/og.png", Buffer.concat(chunks));
+      fs.writeFileSync("public/img/og.jpg", Buffer.concat(chunks));
       return send(res, 200, "ok");
     }
     let file = path.join(ROOT, decodeURIComponent(url.pathname));

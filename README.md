@@ -22,7 +22,7 @@ Every push to `main` redeploys automatically.
 
 - [ ] Replace `public/img/hero.webp` (the mascots wear "PumpFun" patches) with art without Pumpfun marks. Same size (≈880×740, transparent WebP).
 - [ ] Optional: add a contact email next to the X link in `public/privacy.html` and `public/terms.html`.
-- [ ] After replacing the hero art, regenerate the link preview: `npm run dev`, open http://localhost:3000/dev/og, click Save (writes `public/img/og.png`).
+- [ ] After replacing the hero art, regenerate the link preview: `npm run dev`, open http://localhost:3000/dev/og, click Save (writes `public/img/og.jpg`).
 - [ ] Test sign-in with Phantom on desktop and inside the Phantom app on a phone.
 
 ## How it works
