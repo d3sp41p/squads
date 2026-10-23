@@ -109,14 +109,31 @@ test("create, invite gating, join, lock", async () => {
   assert.equal(late.status, 403, "no joins after Squad Entry");
 });
 
-test("PNL bar blocks people below it", async () => {
-  await signIn(dave);
-  const created = await call(squadsApi.POST, "/api/squads", {
-    w: dave, body: { action: "create", name: "Whales", region: "USA", period: "d30", minPnl: 99_000_000, invite: "WHALES1" },
+test("entry bar: not above the creator's own PNL, and blocks joiners below it", async () => {
+  // Fake local PNL differs per wallet: take the richest as creator and a poorer one as joiner.
+  const people = [];
+  for (let n = 10; n < 30; n++) {
+    const w = wallet(n);
+    w.pnl = (await signIn(w)).data.pnl.d30;
+    people.push(w);
+  }
+  people.sort((a, b) => b.pnl - a.pnl);
+  const [rich, poor] = [people[0], people.at(-1)];
+  assert.ok(rich.pnl > 0 && poor.pnl < rich.pnl);
+
+  const tooHigh = await call(squadsApi.POST, "/api/squads", {
+    w: rich, body: { action: "create", name: "Whales", region: "USA", period: "d30", minPnl: rich.pnl + 1, invite: "WHALES1" },
   });
-  const inv = await call(squadsApi.GET, `/api/squads?invite=${created.data.id}`, { w: carol });
+  assert.equal(tooHigh.status, 400);
+  assert.match(tooHigh.data.error, /own 30D PNL/);
+
+  const created = await call(squadsApi.POST, "/api/squads", {
+    w: rich, body: { action: "create", name: "Whales", region: "USA", period: "d30", minPnl: rich.pnl, invite: "WHALES1" },
+  });
+  assert.equal(created.status, 200, JSON.stringify(created.data));
+  const inv = await call(squadsApi.GET, `/api/squads?invite=${created.data.id}`, { w: poor });
   assert.equal(inv.status, 403);
-  const join = await call(squadsApi.POST, "/api/squads", { w: carol, body: { action: "join", id: created.data.id } });
+  const join = await call(squadsApi.POST, "/api/squads", { w: poor, body: { action: "join", id: created.data.id } });
   assert.equal(join.status, 403);
 });
 
@@ -124,11 +141,11 @@ test("import with member wallets; they stay unverified until they sign", async (
   const eve = wallet(5), m1 = wallet(6), m2 = wallet(7);
   await signIn(eve);
   const res = await call(squadsApi.POST, "/api/squads", {
-    w: eve, body: { action: "import", name: "Imported", region: "Asia", period: "d7", minPnl: 500, invite: "IMP-42", status: "open", wallets: [m1.address, m2.address, "not-a-wallet"] },
+    w: eve, body: { action: "import", name: "Imported", region: "Asia", period: "d7", minPnl: 50000000, invite: "IMP-42", status: "entered", wallets: [m1.address, m2.address, "not-a-wallet"] },
   });
   assert.equal(res.status, 400, "bad address rejected");
   const ok = await call(squadsApi.POST, "/api/squads", {
-    w: eve, body: { action: "import", name: "Imported", region: "Asia", period: "d7", minPnl: 500, invite: "IMP-42", status: "open", wallets: [m1.address, m2.address] },
+    w: eve, body: { action: "import", name: "Imported", region: "Asia", period: "d7", minPnl: 50000000, invite: "IMP-42", status: "entered", wallets: [m1.address, m2.address] },
   });
   assert.equal(ok.status, 200);
   let s = (await call(squadsApi.GET, "/api/squads")).data.squads.find(x => x.id === ok.data.id);

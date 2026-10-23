@@ -3,7 +3,7 @@ import { handle, HttpError, json } from "../lib/http.js";
 import { refreshPnl } from "../lib/pnl.js";
 
 // Called by Vercel Cron (see vercel.json). Refreshes the stalest PNL of verified squad members.
-// The free Solana Tracker plan allows 3 requests a second and each wallet takes 3, so go one wallet at a time.
+// One wallet at a time keeps well under Helius rate limits.
 export const GET = handle(async request => {
   const secret = process.env.CRON_SECRET;
   if (!secret || request.headers.get("authorization") !== `Bearer ${secret}`) throw new HttpError(401, "Unauthorized");
@@ -22,7 +22,7 @@ export const GET = handle(async request => {
     if (Date.now() - started > 50_000) break;
     await refreshPnl(wallet, 5 * 60 * 1000);
     done++;
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise(r => setTimeout(r, 200));
   }
   return json({ refreshed: done, of: rows.length });
 });

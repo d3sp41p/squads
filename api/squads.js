@@ -3,7 +3,7 @@ import { handle, HttpError, json, readJson } from "../lib/http.js";
 import { cachedPnl } from "../lib/pnl.js";
 import { sessionWallet } from "../lib/session.js";
 import {
-  MAX_MEMBERS, cleanSquadFields, cleanWallets, getSquad, imageId, listSquads, memberCount, qualifies, saveImage, short, squadOf,
+  MAX_MEMBERS, checkCreatorBar, cleanSquadFields, cleanWallets, getSquad, imageId, listSquads, memberCount, qualifies, saveImage, short, squadOf,
 } from "../lib/squads.js";
 
 function requireWallet(request) {
@@ -46,6 +46,9 @@ export const POST = handle(async request => {
       const imported = b.action === "import";
       const others = imported ? cleanWallets(b.wallets, wallet) : [];
       const status = imported && b.status === "entered" ? "entered" : "recruiting";
+      // A locked squad takes no one new, so its entry bar doesn't matter.
+      if (status === "entered") f.minPnl = 0;
+      checkCreatorBar(f.minPnl, f.period, await cachedPnl(wallet));
       const id = await transaction(async q => {
         await ensureFree(q, wallet);
         for (const w of others) await ensureFree(q, w, short(w) + " is");

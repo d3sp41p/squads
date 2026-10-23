@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { query } from "../lib/db.js";
 import { handle, HttpError, json, readJson } from "../lib/http.js";
-import { cachedPnl, debugPnl, refreshPnl } from "../lib/pnl.js";
+import { cachedPnl, refreshPnl } from "../lib/pnl.js";
 import { clearCookie, sessionCookie, sessionWallet } from "../lib/session.js";
 import { isAddress, signInMessage, verifySignature } from "../lib/solana.js";
 import { squadOf } from "../lib/squads.js";
@@ -13,6 +13,7 @@ async function me(wallet, pnl) {
   return {
     wallet,
     pnl: pnl ? { d7: pnl.d7, d30: pnl.d30, all: pnl.all } : null,
+    pnlSol: pnl?.sol ?? null,
     pnlUpdatedAt: pnl?.updatedAt ?? null,
     squadId: await squadOf(query, wallet),
   };
@@ -21,12 +22,15 @@ async function me(wallet, pnl) {
 // GET /api/auth → who is signed in
 export const GET = handle(async request => {
   const wallet = sessionWallet(request);
-  // TEMPORARY: /api/auth?debug=<address> → raw PNL data, for signed-in users only. Remove after the check.
+  // TEMPORARY: /api/auth?debug=<address> → recompute one wallet's PNL, for signed-in users only. Remove after the check.
   const debug = new URL(request.url).searchParams.get("debug");
   if (debug) {
     if (!wallet) throw new HttpError(401, "Sign in first");
     if (!isAddress(debug)) throw new HttpError(400, "Not a wallet address");
-    return json(await debugPnl(debug));
+    const pnl = await refreshPnl(debug, 0);
+    const [trades] = await query("select count(*)::int as n, min(block_time) as first, max(block_time) as last from wallet_trades where wallet = $1", [debug]);
+    const [sync] = await query("select * from wallet_sync where wallet = $1", [debug]);
+    return json({ pnl, trades, sync });
   }
   return json(wallet ? await me(wallet) : { wallet: null });
 });

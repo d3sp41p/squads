@@ -37,7 +37,8 @@ async function api(url,{method="GET",body}={}){
  if(!r.ok)throw new Error(data.error||"Something went wrong. Try again.");
  return data;
 }
-function setMe(m){state.me=m&&m.wallet?{w:m.wallet,d7:m.pnl?.d7??null,d30:m.pnl?.d30??null,all:m.pnl?.all??null,updatedAt:m.pnlUpdatedAt,squadId:m.squadId}:null}
+function setMe(m){state.me=m&&m.wallet?{w:m.wallet,d7:m.pnl?.d7??null,d30:m.pnl?.d30??null,all:m.pnl?.all??null,sol:m.pnlSol??null,updatedAt:m.pnlUpdatedAt,squadId:m.squadId}:null}
+const solStr=v=>v==null?"—":(v<0?"-":"+")+Math.abs(v).toFixed(Math.abs(v)>=100?0:2)+" SOL";
 async function loadSquads(){
  try{const d=await api("/api/squads");squads=d.squads.map(s=>({...s,color:COLORS[s.id%COLORS.length]}));loaded=true;loadError=false}
  catch(e){loadError=!loaded}
@@ -103,7 +104,8 @@ function openMe(){const m=state.me;
  modal(`<h2>Your wallet</h2>
  <div class="mono" style="word-break:break-all">${esc(m.w)}</div>
  <div class="stats" style="grid-template-columns:repeat(3,1fr)">${["d7","d30","all"].map(p=>`<div class="stat"><div class="k">PNL ${PL[p]}</div><div class="v ${m[p]<0?"neg":"pos"}">${money(m[p])}</div></div>`).join("")}</div>
- <p class="note" style="margin:0">${upd?"PNL updated "+esc(upd)+". ":"We couldn't load your PNL yet. "}It refreshes when you sign in again.</p>
+ ${m.sol?`<div class="note" style="margin:0">In SOL: 7D ${solStr(m.sol.d7)} · 30D ${solStr(m.sol.d30)} · all time ${solStr(m.sol.all)}</div>`:""}
+ <p class="note" style="margin:0">PNL is the SOL you made or lost in trades, fees included, at today's SOL price. Deposits, withdrawals and tokens you still hold don't count. ${upd?"Updated "+esc(upd)+".":"We couldn't load your PNL yet."}</p>
  <div style="display:flex;gap:8px;flex-wrap:wrap">${m.squadId?`<button class="btn btn-primary" id="my-squad">Open my squad</button>`:""}<button class="btn btn-ghost" id="logout">Sign out</button></div>`,
  el=>{const ms=el.querySelector("#my-squad");if(ms)ms.onclick=()=>openSquad(m.squadId);
   el.querySelector("#logout").onclick=async()=>{await api("/api/auth?action=logout",{method:"POST"}).catch(()=>{});state.me=null;state.qual=false;closeModal();renderWallet();renderFilters();render();toast("Signed out")}});}
@@ -234,6 +236,18 @@ async function resizeImage(file,w,h){
 function bindUpload(m,inp,box,w,h,set){m.querySelector(inp).onchange=async e=>{const f=e.target.files[0];if(!f)return;
   try{const url=await resizeImage(f,w,h);set(url);const b=m.querySelector(box);b.style.backgroundImage=`url(${url})`;b.querySelector("span").hidden=true}
   catch(err){toast(err.message)}}}
+// The entry bar can't be above the creator's own PNL for the same period. Returns a check for submit.
+const startBar=()=>Math.max(0,Math.min(1000,Math.floor(state.me?.d30||0)));
+function bindBar(m,minSel,perSel,skip=()=>false){
+ const min=m.querySelector(minSel),per=m.querySelector(perSel),note=document.createElement("span");
+ note.className="note";min.closest(".field").appendChild(note);
+ const ok=()=>{const v=state.me[per.value],want=+min.value||0;return skip()||!want||(v!=null&&v>=want)};
+ const upd=()=>{const v=state.me[per.value];
+  note.textContent=v==null?"We couldn't load your PNL, so the bar can only be $0 for now.":"Your "+PL[per.value]+" PNL is "+money(v)+". The bar can't be higher.";
+  note.style.color=ok()?"":"var(--red)"};
+ min.addEventListener("input",upd);per.addEventListener("change",upd);upd();
+ return ok;
+}
 async function submitSquad(form,body,okMsg){
  const btn=form.querySelector("[type=submit]");btn.classList.add("busy");
  try{const {id}=await api("/api/squads",{method:"POST",body});closeModal();state.sort="new";$("#sort").value="new";await refresh();toast(okMsg);openSquad(id)}
@@ -252,7 +266,7 @@ function openCreate(){
    <div class="field"><span class="fl">Banner</span><label class="upload" id="up-ban"><input type="file" accept="image/*" id="c-ban" hidden><span>Upload banner · 1500×500</span></label></div>
   </div>
   <div class="field full"><label for="c-region">Region</label><select class="input" id="c-region">${REGION_OPTS.map(r=>`<option>${r}</option>`).join("")}</select></div>
-  <div class="field"><label for="c-min">Minimum PNL to join ($)</label><input class="input mono" id="c-min" type="number" min="0" step="100" value="1000"></div>
+  <div class="field"><label for="c-min">Minimum PNL to join ($)</label><input class="input mono" id="c-min" type="number" min="0" step="any" value="${startBar()}"></div>
   <div class="field"><label for="c-per">Measured over</label><select class="input" id="c-per"><option value="d7">Last 7 days</option><option value="d30" selected>Last 30 days</option><option value="all">All time</option></select></div>
   <div class="sync-card full">
    <span style="font-weight:700">Step 1: create the squad in the Pumpfun app</span>
@@ -266,8 +280,9 @@ function openCreate(){
  </form>`,m=>{
   let img=null,ban=null;
   bindUpload(m,"#c-img","#up-img",320,320,v=>img=v);bindUpload(m,"#c-ban","#up-ban",1500,500,v=>ban=v);
-  const f=m.querySelector("#cf");
+  const f=m.querySelector("#cf"),barOk=bindBar(m,"#c-min","#c-per");
   f.onsubmit=e=>{e.preventDefault();
+   if(!barOk()){toast("The entry bar can't be higher than your own PNL");return}
    submitSquad(f,{action:"create",name:m.querySelector("#c-name").value,region:m.querySelector("#c-region").value,minPnl:+m.querySelector("#c-min").value||0,
     period:m.querySelector("#c-per").value,desc:m.querySelector("#c-desc").value,invite:m.querySelector("#c-invite").value,photo:img,banner:ban},"Squad listed")}});}
 $("#nav-create").onclick=e=>{e.preventDefault();openCreate()};$("#side-create").onclick=openCreate;$("#hero-create").onclick=openCreate;
@@ -287,7 +302,7 @@ function openAdd(){
   <div class="field full"><label for="a-invite">Pumpfun invite link or code</label><input class="input mono" id="a-invite" required placeholder="Pumpfun app → Squads → Invite"></div>
   <div class="field"><label for="a-region">Region</label><select class="input" id="a-region">${REGION_OPTS.map(r=>`<option>${r}</option>`).join("")}</select></div>
   <div class="field"><label for="a-status">Status</label><select class="input" id="a-status"><option value="open">Still recruiting</option><option value="entered">Squad Entry submitted (locked)</option></select></div>
-  <div class="field" id="a-min-f"><label for="a-min">Minimum PNL to join ($)</label><input class="input mono" id="a-min" type="number" min="0" step="100" value="1000"></div>
+  <div class="field" id="a-min-f"><label for="a-min">Minimum PNL to join ($)</label><input class="input mono" id="a-min" type="number" min="0" step="any" value="${startBar()}"></div>
   <div class="field" id="a-per-f"><label for="a-per">Measured over</label><select class="input" id="a-per"><option value="d7">Last 7 days</option><option value="d30" selected>Last 30 days</option><option value="all">All time</option></select></div>
   <div class="field full"><label for="a-wallets">Current members' wallets (optional)</label><textarea class="input mono" id="a-wallets" placeholder="One Solana address per line"></textarea>
    <span class="note">Each member shows as unverified until they connect and sign here. Only verified wallets count toward PNL on this site.</span></div>
@@ -295,8 +310,9 @@ function openAdd(){
  </form>`,m=>{
   let img=null,ban=null;bindUpload(m,"#a-img","#up-aimg",320,320,v=>img=v);bindUpload(m,"#a-ban","#up-aban",1500,500,v=>ban=v);
   const st=m.querySelector("#a-status");st.onchange=()=>{const h=st.value==="entered";m.querySelector("#a-min-f").hidden=h;m.querySelector("#a-per-f").hidden=h};
-  const f=m.querySelector("#af");
+  const f=m.querySelector("#af"),barOk=bindBar(m,"#a-min","#a-per",()=>st.value==="entered");
   f.onsubmit=e=>{e.preventDefault();
+   if(!barOk()){toast("The entry bar can't be higher than your own PNL");return}
    const ws=m.querySelector("#a-wallets").value.split(/\s+/).filter(Boolean);
    const bad=ws.find(w=>!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(w));
    if(bad){toast(short(bad)+" isn't a Solana address");return}

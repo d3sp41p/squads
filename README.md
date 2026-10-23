@@ -7,11 +7,11 @@ Plain HTML/CSS/JS front end (`public/`), Vercel serverless functions (`api/`), P
 ## Deploy (about 30 minutes)
 
 1. **Supabase** → New project (region close to your users). Then **Connect → Transaction pooler** and copy the URI (port 6543). Put your database password into it. Tables are created automatically on first request.
-2. **Solana Tracker** → [solanatracker.io/data-api](https://www.solanatracker.io/data-api) → sign up and copy the API key. The free plan is 2,500 requests a month; each PNL refresh takes 3, so upgrade once real traffic comes in.
+2. **Helius** → [dashboard.helius.dev](https://dashboard.helius.dev) → sign up (free plan) and copy the API key.
 3. **Vercel** → Add New Project → import this GitHub repo. Framework preset: **Other**, no build command. Before deploying, add Environment Variables (see `.env.example`):
    - `DATABASE_URL` — the Supabase pooler URI
    - `SESSION_SECRET` — a long random string
-   - `SOLANATRACKER_API_KEY`
+   - `HELIUS_API_KEY`
    - `CRON_SECRET` — a long random string
 4. Deploy, then **Settings → Domains** → add your domain and set the DNS records Vercel shows.
 5. Open the site, connect the owner's wallet and create or import the real squad.
@@ -28,7 +28,7 @@ Every push to `main` redeploys automatically.
 ## How it works
 
 - **Sign-in:** the server issues a one-time nonce, the wallet signs `Sign in to Enlist: <nonce>`, the server checks the ed25519 signature and sets an HttpOnly session cookie (30 days). No transactions, ever.
-- **PNL:** fetched from Solana Tracker on sign-in (cached for an hour) and by a daily cron for verified squad members (`/api/cron`, Vercel Hobby allows one run a day; on Pro change the schedule in `vercel.json`). 7D/30D = realized PNL over the window, all-time = total PNL. Only verified wallets (signed in at least once) count toward squad totals.
+- **PNL:** computed from the chain (`lib/chainpnl.js`). Every successful transaction that changed both the wallet's SOL (native + wSOL) and another of its tokens is a trade; its SOL change, fees included, is stored in `wallet_trades`. PNL = sum over 7 days / 30 days / everything, in USD at the current SOL price. Deposits, withdrawals and tokens still held don't count. Trades are pulled with Helius `getTransactionsForAddress` on sign-in (cached for an hour, then only new transactions) and by a daily cron for verified squad members (`/api/cron`; Vercel Hobby allows one run a day). Only verified wallets count toward squad totals.
 - **Invites** are only sent to signed-in users who meet the squad's entry PNL, and must be a `pump.fun` link or a plain code.
 - **Joining:** a trader joins in the Pumpfun app, then taps "I joined in the Pumpfun app" so the listing shows them. The creator can remove anyone from the listing.
 - **Rules enforced on the server:** max 20 members, one squad per wallet, only the creator can lock, remove members or delete, no joins after Squad Entry, images resized in the browser and checked on the server.
