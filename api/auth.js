@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { query } from "../lib/db.js";
 import { handle, HttpError, json, readJson } from "../lib/http.js";
-import { cachedPnl, refreshPnl } from "../lib/pnl.js";
+import { cachedPnl, debugPnl, refreshPnl } from "../lib/pnl.js";
 import { clearCookie, sessionCookie, sessionWallet } from "../lib/session.js";
 import { isAddress, signInMessage, verifySignature } from "../lib/solana.js";
 import { squadOf } from "../lib/squads.js";
@@ -21,6 +21,13 @@ async function me(wallet, pnl) {
 // GET /api/auth → who is signed in
 export const GET = handle(async request => {
   const wallet = sessionWallet(request);
+  // TEMPORARY: /api/auth?debug=<address> → raw PNL data, for signed-in users only. Remove after the check.
+  const debug = new URL(request.url).searchParams.get("debug");
+  if (debug) {
+    if (!wallet) throw new HttpError(401, "Sign in first");
+    if (!isAddress(debug)) throw new HttpError(400, "Not a wallet address");
+    return json(await debugPnl(debug));
+  }
   return json(wallet ? await me(wallet) : { wallet: null });
 });
 
