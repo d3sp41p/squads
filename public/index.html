@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Enlist · Find a squad for the Pumpfun Squads Competition</title>
+<meta name="description" content="Browse squads, filter by the PNL you need to get in, and join with the squad's invite. Or start your own squad and set the minimum PNL to get in.">
+<meta property="og:title" content="Enlist your squad. Win together.">
+<meta property="og:description" content="Find a squad for the Pumpfun Squads Competition, filtered by real PNL.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0a0c0b">
+<link rel="icon" href="/img/logo.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="/style.css">
+<script src="/vendor/qrcode.js" defer></script>
+<script src="/app.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="wrap bar">
+    <a class="logo" href="#top"><img class="logo-mark" src="/img/logo.webp" alt="" width="40" height="40"><span>ENLIST</span></a>
+    <nav><a href="#squads">Squads</a><a href="#leaderboard">Leaderboard</a><a href="#" id="nav-create">Create squad</a><a href="#" id="nav-add">Import squad</a></nav>
+    <div class="spacer"></div>
+    <div class="ticker"><span class="mono">$ENLIST</span></div>
+    <div id="wallet-slot"></div>
+  </div>
+</header>
+
+<main id="top">
+  <section class="wrap hero">
+    <div>
+      <span class="eyebrow"><i></i>Pumpfun Squads Competition · $2.5M prize pool</span>
+      <h1>Enlist your squad.<br><em>Win together.</em></h1>
+      <p>Browse squads, filter by the PNL you need to get in, and join with the squad's invite. Or start your own squad and set the minimum PNL to get in.</p>
+      <div class="hero-cta"><a class="btn btn-primary" href="#squads">Browse squads</a><button class="btn btn-ghost" id="hero-create">Create a squad</button></div>
+    </div>
+    <div class="stage">
+      <img class="stage-art" src="/img/hero.webp" alt="Five green soldier mascots celebrating" width="470" height="398">
+    </div>
+  </section>
+
+  <section class="wrap comp" id="competition" aria-label="Competition">
+    <div class="comp-main">
+      <span class="comp-label">Squad competition</span>
+      <div class="comp-pool">$2,500,000</div>
+      <span class="comp-sub" id="dl-label">Squad Entry closes in</span>
+      <div class="count" id="count"></div>
+      <a class="comp-rules" href="https://pump.fun/docs/app-competition-terms" target="_blank" rel="noopener"><span class="i">i</span>Schedule, scoring, eligibility and rules<span class="chev">›</span></a>
+      <a class="btn comp-cta" href="#squads">Join or create a squad</a>
+    </div>
+    <div class="comp-prizes">
+      <span class="comp-label">Prize breakdown</span>
+      <div class="prize-row"><span class="r1">#1</span><b>$1,500,000</b></div>
+      <div class="prize-row"><span>#2</span><b>$750,000</b></div>
+      <div class="prize-row"><span class="r3">#3</span><b>$250,000</b></div>
+      <p class="note">Each prize is split inside the squad by profit contributed. Members with zero or negative PNL get nothing. Competition runs 26 Oct – 9 Nov, 14:00 UTC.</p>
+    </div>
+  </section>
+
+  <section class="wrap about" id="about">
+    <div>
+      <h2>Squads shouldn't be invite-only</h2>
+      <p class="lead">Pumpfun Squads pay out to the best teams, but getting into one is hard. Top squads fill up with KOLs and their friends, and most traders can only follow them from the outside.</p>
+      <p>Squad creators have the opposite problem. They need traders who actually make money, and a wallet address dropped in a Telegram chat tells them nothing.</p>
+      <p>So we built Enlist. Every squad sets an entry bar in real PNL, every trader proves their wallet with a signature, and anyone who clears the bar can join. You don't need followers or connections, only your trading record.</p>
+    </div>
+    <div class="who">
+      <div><b>For traders</b><span>Filter squads by region and entry PNL, see who's already in, and join the ones you qualify for with the squad's invite.</span></div>
+      <div><b>For squad creators</b><span>Set a minimum PNL so only proven traders apply. Start a new squad or list the one you already made in the Pumpfun app.</span></div>
+      <div><b>During the competition</b><span>Follow every listed squad on one leaderboard, next to a link to the official one.</span></div>
+    </div>
+  </section>
+
+  <section class="wrap rules" aria-label="Competition rules">
+    <div class="rule"><b>2–20 members</b><span>per squad, one squad per person</span></div>
+    <div class="rule"><b>Locks at Squad Entry</b><span>Nobody who joins after the creator enters counts</span></div>
+    <div class="rule"><b>Accept the terms</b><span>Every member, in the Pumpfun app, or their PNL won't count</span></div>
+    <div class="rule"><b>Any terminal counts</b><span>Spot trades on GMGN, Axiom and others are tracked</span></div>
+    <div class="rule"><b>No UK residents</b><span>Also excluded: sanctioned countries</span></div>
+  </section>
+
+  <section class="wrap main" id="squads">
+    <aside>
+      <div class="field"><label for="q">Search</label><input class="input" id="q" placeholder="Squad name or region"></div>
+      <div class="field"><span class="fl">PNL period</span>
+        <div class="seg" id="period"><button data-p="d7">7D</button><button data-p="d30" class="on">30D</button><button data-p="all">All</button></div>
+      </div>
+      <div class="field"><span class="fl">Entry PNL required</span><div class="chips" id="reqchips"></div>
+        <div class="custom-min"><span class="sub" style="white-space:nowrap">Custom $</span><input class="input mono" id="req-custom" type="number" min="0" step="500" placeholder="e.g. 7500" aria-label="Custom minimum entry PNL"></div>
+        <span class="note">Shows squads that ask for at least this much PNL over the period above.</span></div>
+      <div class="field"><span class="fl">Region</span><div class="chips" id="regions"></div></div>
+      <div class="toggle"><span>Only squads I can join</span><button class="sw" id="t-qual" aria-label="Only squads I can join"></button></div>
+      <div class="toggle"><span>Hide full &amp; locked</span><button class="sw on" id="t-full" aria-label="Hide full and locked squads"></button></div>
+      <button class="btn btn-primary" id="side-create">+ Create a squad</button>
+      <button class="btn btn-ghost" id="side-add">Import my Pumpfun squad</button>
+    </aside>
+    <div style="min-width:0">
+      <div class="listhead">
+        <div class="viewtabs" id="viewtabs" role="tablist" aria-label="Which squads"></div>
+        <select class="input" id="sort" style="width:auto">
+          <option value="pnl">Sort: squad PNL</option>
+          <option value="spots">Sort: open spots</option>
+          <option value="req">Sort: lowest entry PNL</option>
+          <option value="new">Sort: newest</option>
+        </select>
+      </div>
+      <div class="grid" id="grid"><div class="loading">Loading squads…</div></div>
+    </div>
+  </section>
+
+  <section class="wrap lb" id="leaderboard">
+    <div class="lbhead">
+      <div class="lbtitle"><div><h2>Squad leaderboard</h2>
+      <p class="note" style="margin:0">Combined 30-day spot PNL of verified wallets, read from the Solana blockchain. Unofficial: final results come from Pumpfun.</p></div></div>
+      <div class="right"><div class="viewtabs" id="lbtabs" aria-label="Leaderboard scope"></div>
+      <a class="btn btn-ghost" href="https://pump.fun/leaderboard" target="_blank" rel="noopener">Official leaderboard ↗</a></div>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Squad</th><th>Region</th><th>Source</th><th class="num">Members</th><th class="num">Avg / member</th><th class="num">Squad PNL</th></tr></thead><tbody id="lb"></tbody></table></div>
+  </section>
+</main>
+
+<footer><div class="wrap">Enlist is an independent community site and is not affiliated with Pumpfun. Nothing here is financial advice. Under the competition terms, squad members buying the same token together to move its price counts as manipulation and can get a whole squad disqualified. PNL figures come from public wallet trackers and may differ from the official competition numbers.
+  <div style="margin-top:10px"><a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div></div></footer>
+
+<div id="modal-root"></div>
+</body>
+</html>
