@@ -146,7 +146,7 @@ function render(){
   </div>`}).join(""):`<div class="empty"><p>No squads yet in this filter. Create one or import yours from the Pumpfun app.</p>
   <div class="acts"><button class="btn btn-primary" id="st-create">+ Create a squad</button><button class="btn btn-ghost" id="st-add">Import my Pumpfun squad</button></div></div>`;
  if(list.length&&squads.length<6)$("#grid").insertAdjacentHTML("beforeend",`<div class="starter"><div><h3>There aren't many squads here yet</h3>
-  <p>Enlist just launched, so the list is short for now. Start a new squad, or import the one you already made in the Pumpfun app. Set a minimum PNL to join, and only traders who clear it can get in, so you spend less time vetting people and more time trading.</p></div>
+  <p>Create a squad or import yours from the Pumpfun app, set the minimum PNL to join, and only qualified traders can get in.</p></div>
   <div class="acts"><button class="btn btn-primary" id="st-create">+ Create a squad</button><button class="btn btn-ghost" id="st-add">Import my Pumpfun squad</button></div></div>`);
  const sc=$("#st-create");if(sc)sc.onclick=openCreate;const sa=$("#st-add");if(sa)sa.onclick=openAdd;
  $("#grid").querySelectorAll(".card").forEach(c=>{const open=()=>openSquad(+c.dataset.id);c.onclick=open;c.onkeydown=e=>{if(e.key==="Enter")open()}});
