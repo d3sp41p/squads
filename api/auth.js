@@ -22,16 +22,6 @@ async function me(wallet, pnl) {
 // GET /api/auth → who is signed in
 export const GET = handle(async request => {
   const wallet = sessionWallet(request);
-  // TEMPORARY: /api/auth?debug=<address> → recompute one wallet's PNL, for signed-in users only. Remove after the check.
-  const debug = new URL(request.url).searchParams.get("debug");
-  if (debug) {
-    if (!wallet) throw new HttpError(401, "Sign in first");
-    if (!isAddress(debug)) throw new HttpError(400, "Not a wallet address");
-    const pnl = await refreshPnl(debug, 0);
-    const [trades] = await query("select count(*)::int as n, min(block_time) as first, max(block_time) as last from wallet_trades where wallet = $1", [debug]);
-    const [sync] = await query("select * from wallet_sync where wallet = $1", [debug]);
-    return json({ pnl, trades, sync });
-  }
   return json(wallet ? await me(wallet) : { wallet: null });
 });
 
