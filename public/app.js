@@ -260,7 +260,7 @@ function openCreate(){
  if(state.me.squadId){toast("You're already in a squad. One squad per person.");openSquad(state.me.squadId);return}
  modal(`<h2>Create a squad</h2>
  <form class="form" id="cf">
-  <div class="field full"><label for="c-name">Squad name</label><input class="input" id="c-name" maxlength="28" required placeholder="e.g. Gdynia Gems"></div>
+  <div class="field full"><label for="c-name">Squad name</label><input class="input" id="c-name" maxlength="28" required placeholder="e.g. Degen Snipers"></div>
   <div class="full uploads">
    <div class="field"><span class="fl">Photo</span><label class="upload" id="up-img"><input type="file" accept="image/*" id="c-img" hidden><span>Upload photo</span></label></div>
    <div class="field"><span class="fl">Banner</span><label class="upload" id="up-ban"><input type="file" accept="image/*" id="c-ban" hidden><span>Upload banner · 1500×500</span></label></div>
@@ -294,7 +294,7 @@ function openAdd(){
  modal(`<h2>Import your Pumpfun squad</h2>
  <p class="note" style="margin:0">Already made a squad in the Pumpfun app? List it so traders can find it and it shows on the leaderboard. You sign in with the creator wallet, and you'll be listed as its creator.</p>
  <form class="form" id="af">
-  <div class="field full"><label for="a-name">Squad name, as in the app</label><input class="input" id="a-name" maxlength="28" required placeholder="e.g. Tricity Traders"></div>
+  <div class="field full"><label for="a-name">Squad name, as in the app</label><input class="input" id="a-name" maxlength="28" required placeholder="e.g. Moon Raiders"></div>
   <div class="full uploads">
    <div class="field"><span class="fl">Photo</span><label class="upload" id="up-aimg"><input type="file" accept="image/*" id="a-img" hidden><span>Upload photo</span></label></div>
    <div class="field"><span class="fl">Banner</span><label class="upload" id="up-aban"><input type="file" accept="image/*" id="a-ban" hidden><span>Upload banner · 1500×500</span></label></div>
