@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Enlist · Find a squad for the Pumpfun Squads Competition</title>
-<meta name="description" content="Browse squads, filter by the PNL you need to get in, and join with the squad's invite. Or start your own squad and set the minimum PNL to get in.">
+<meta name="description" content="Squad up for the Pumpfun Squads Competition. Browse squads by the PNL they require, or set your own bar and let qualified traders come to you.">
 <meta property="og:title" content="Enlist your squad. Win together.">
 <meta property="og:description" content="Find a squad for the Pumpfun Squads Competition, filtered by real PNL.">
 <meta property="og:type" content="website">
@@ -45,8 +45,8 @@
   <section class="wrap hero">
     <div>
       <span class="eyebrow"><i></i>Pumpfun Squads Competition · $2.5M prize pool</span>
-      <h1>Enlist your squad.<br><em>Win together.</em></h1>
-      <p>Browse squads, filter by the PNL you need to get in, and join with the squad's invite. Or start your own squad and set the minimum PNL to get in.</p>
+      <h1>Find a squad.<br><em>Find your traders.</em></h1>
+      <p>Squad up for the Pumpfun Squads Competition. Browse squads by the PNL they require, or set your own bar and let qualified traders come to you.</p>
       <div class="hero-cta"><a class="btn btn-primary" href="#squads">Browse squads</a><button class="btn btn-ghost" id="hero-create">Create a squad</button></div>
     </div>
     <div class="stage">
@@ -72,26 +72,35 @@
     </div>
   </section>
 
-  <section class="wrap about" id="about">
-    <div>
-      <h2>Squads shouldn't be invite-only</h2>
-      <p class="lead">Pumpfun Squads pay out to the best teams, but getting into one is hard. Top squads fill up with KOLs and their friends, and most traders can only follow them from the outside.</p>
-      <p>Squad creators have the opposite problem. They need traders who actually make money, and a wallet address dropped in a Telegram chat tells them nothing.</p>
-      <p>So we built Enlist. Every squad sets an entry bar in real PNL, every trader proves their wallet with a signature, and anyone who clears the bar can join. You don't need followers or connections, only your trading record.</p>
-    </div>
-    <div class="who">
-      <div><b>For traders</b><span>Filter squads by region and entry PNL, see who's already in, and join the ones you qualify for with the squad's invite.</span></div>
-      <div><b>For squad creators</b><span>Set a minimum PNL so only proven traders apply. Start a new squad or list the one you already made in the Pumpfun app.</span></div>
-      <div><b>During the competition</b><span>Follow every listed squad on one leaderboard, next to a link to the official one.</span></div>
+  <section class="wrap how" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">How it works</h2>
+    <div class="how-cols">
+      <div class="how-col">
+        <h3>Looking for a squad</h3>
+        <ol>
+          <li>Connect your wallet. We read your PNL, no transactions.</li>
+          <li>See only the squads you qualify for.</li>
+          <li>Join with the squad's invite in the Pumpfun app.</li>
+        </ol>
+      </div>
+      <div class="how-col">
+        <h3>Building a squad</h3>
+        <ol>
+          <li>Create a squad or import one from the Pumpfun app.</li>
+          <li>Set the minimum PNL to join (7D, 30D or all-time).</li>
+          <li>Fill your spots, then submit Squad Entry before 26 Oct, 14:00 UTC.</li>
+        </ol>
+      </div>
     </div>
   </section>
 
-  <section class="wrap rules" aria-label="Competition rules">
-    <div class="rule"><b>2–20 members</b><span>per squad, one squad per person</span></div>
-    <div class="rule"><b>Locks at Squad Entry</b><span>Nobody who joins after the creator enters counts</span></div>
-    <div class="rule"><b>Accept the terms</b><span>Every member, in the Pumpfun app, or their PNL won't count</span></div>
-    <div class="rule"><b>Any terminal counts</b><span>Spot trades on GMGN, Axiom and others are tracked</span></div>
-    <div class="rule"><b>No UK residents</b><span>Also excluded: sanctioned countries</span></div>
+  <section class="wrap" aria-label="Competition rules">
+    <div class="rules">
+      <div class="rule">2–20 members</div>
+      <div class="rule">Members lock at Squad Entry</div>
+      <div class="rule">Every member accepts the terms in the app</div>
+      <div class="rule">Spot trades only, any terminal</div>
+    </div>
   </section>
 
   <section class="wrap main" id="squads">
@@ -101,8 +110,7 @@
         <div class="seg" id="period"><button data-p="d7">7D</button><button data-p="d30" class="on">30D</button><button data-p="all">All</button></div>
       </div>
       <div class="field"><span class="fl">Entry PNL required</span><div class="chips" id="reqchips"></div>
-        <div class="custom-min"><span class="sub" style="white-space:nowrap">Custom $</span><input class="input mono" id="req-custom" type="number" min="0" step="500" placeholder="e.g. 7500" aria-label="Custom minimum entry PNL"></div>
-        <span class="note">Shows squads that ask for at least this much PNL over the period above.</span></div>
+        <div class="custom-min"><span class="sub" style="white-space:nowrap">Custom $</span><input class="input mono" id="req-custom" type="number" min="0" step="500" placeholder="e.g. 7500" aria-label="Custom minimum entry PNL"></div></div>
       <div class="field"><span class="fl">Region</span><div class="chips" id="regions"></div></div>
       <div class="toggle"><span>Only squads I can join</span><button class="sw" id="t-qual" aria-label="Only squads I can join"></button></div>
       <div class="toggle"><span>Hide full &amp; locked</span><button class="sw on" id="t-full" aria-label="Hide full and locked squads"></button></div>
@@ -134,7 +142,7 @@
   </section>
 </main>
 
-<footer><div class="wrap">Enlist is an independent community site and is not affiliated with Pumpfun. Nothing here is financial advice. Under the competition terms, squad members buying the same token together to move its price counts as manipulation and can get a whole squad disqualified. PNL figures come from public on-chain data and may differ from the official competition numbers.
+<footer><div class="wrap">Enlist is independent and not affiliated with Pumpfun. PNL shown here is unofficial. Not financial advice. UK residents and sanctioned countries are excluded from the competition.
   <div style="margin-top:10px"><a href="https://x.com/EnlistYourSquad" target="_blank" rel="noopener">X @EnlistYourSquad</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></div></div></footer>
 
 <div id="modal-root"></div>
